@@ -77,8 +77,8 @@ export function ChartGrid({ data }: { data: KpiData | null }) {
             <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} stroke="oklch(0.68 0.025 280)" fontSize={11} tickLine={false} axisLine={false} />
             <Tooltip
               contentStyle={tooltipStyle}
-              labelFormatter={formatMonth}
-              formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]}
+              labelFormatter={(m: any) => formatMonth(String(m))}
+              formatter={(v: any) => [`$${Number(v).toLocaleString()}`, "Revenue"]}
             />
             <Area type="monotone" dataKey="revenue" stroke={VIOLET_LIGHT} strokeWidth={2} fill="url(#revGrad)" />
           </AreaChart>
@@ -118,7 +118,7 @@ export function ChartGrid({ data }: { data: KpiData | null }) {
           <BarChart data={c.topCustomers} layout="vertical" margin={{ top: 5, right: 40, left: 10, bottom: 0 }}>
             <XAxis type="number" hide />
             <YAxis type="category" dataKey="name" stroke="oklch(0.68 0.025 280)" fontSize={11} tickLine={false} axisLine={false} width={140} />
-            <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]} />
+            <Tooltip contentStyle={tooltipStyle} formatter={(v: any) => [`$${Number(v).toLocaleString()}`, "Revenue"]} />
             <Bar dataKey="value" fill={VIOLET} radius={[0, 6, 6, 0]} barSize={14}>
               <LabelList dataKey="value" position="right" formatter={formatK as any} style={{ fill: "oklch(0.85 0.01 280)", fontSize: 11 }} />
             </Bar>
@@ -132,7 +132,7 @@ export function ChartGrid({ data }: { data: KpiData | null }) {
           <BarChart data={c.calibrationsDueByMonth} margin={{ top: 18, right: 10, left: -20, bottom: 0 }}>
             <XAxis dataKey="month" tickFormatter={formatMonth} stroke="oklch(0.68 0.025 280)" fontSize={11} tickLine={false} axisLine={{ stroke: GRID }} />
             <YAxis stroke="oklch(0.68 0.025 280)" fontSize={11} tickLine={false} axisLine={false} />
-            <Tooltip contentStyle={tooltipStyle} labelFormatter={formatMonth} />
+            <Tooltip contentStyle={tooltipStyle} labelFormatter={(m: any) => formatMonth(String(m))} />
             <Bar dataKey="due" fill={SKY} radius={[6, 6, 0, 0]} barSize={28}>
               <LabelList dataKey="due" position="top" style={{ fill: "oklch(0.85 0.01 280)", fontSize: 11 }} />
             </Bar>
