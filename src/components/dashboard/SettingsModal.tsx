@@ -50,6 +50,7 @@ export function SettingsModal({ open, onClose, onSaved }: Props) {
   }
 
   async function save() {
+    if (!s) return;
     setSaving(true);
     const patch: any = { dbMode: s.dbMode, aiMode: s.aiMode, mssql: { ...s.mssql }, claude: { ...s.claude }, nexus: { ...s.nexus } };
     if (pw) patch.mssql.password = pw;
