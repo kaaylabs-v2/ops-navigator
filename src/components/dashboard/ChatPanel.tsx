@@ -39,10 +39,12 @@ export function ChatPanel({ aiMode }: { aiMode: "claude" | "nexus" }) {
 
   return (
     <div className="h-full flex flex-col card-surface overflow-hidden">
-      <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between shrink-0">
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0">
         <h3 className="text-sm font-semibold tracking-tight">Ask JM Test AI</h3>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border border-white/10"
-          style={{ color: "var(--violet-glow)" }}>
+        <span
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border border-border"
+          style={{ color: "var(--ai-mark-fg)", background: "var(--ai-mark-bg)" }}
+        >
           <Sparkles className="size-2.5" />
           {aiMode === "claude" ? "Claude" : "Nexus"}
         </span>
@@ -58,17 +60,17 @@ export function ChatPanel({ aiMode }: { aiMode: "claude" | "nexus" }) {
         {messages.map((m, i) => <Bubble key={i} msg={m} />)}
         {loading && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Sparkles className="size-3 pulse-dot" style={{ color: "var(--violet-glow)" }} />
+            <Sparkles className="size-3 pulse-dot" style={{ color: "var(--ai-mark-fg)" }} />
             Thinking…
           </div>
         )}
       </div>
 
-      <div className="px-5 pt-3 pb-2 border-t border-white/8 shrink-0">
+      <div className="px-5 pt-3 pb-2 border-t border-border shrink-0">
         <div className="flex flex-wrap gap-1.5 mb-2">
           {SUGGESTIONS.map((s) => (
             <button key={s} onClick={() => send(s)} disabled={loading}
-              className="text-[10px] px-2 py-1 rounded-md border border-white/10 hover:border-white/25 hover:bg-white/5 transition-colors text-muted-foreground hover:text-foreground text-left max-w-full truncate">
+              className="text-[10px] px-2 py-1 rounded-md border border-border hover:border-[var(--border-strong)] hover:bg-[var(--row-hover)] transition-colors text-muted-foreground hover:text-foreground text-left max-w-full truncate">
               {s.length > 42 ? s.slice(0, 42) + "…" : s}
             </button>
           ))}
@@ -82,13 +84,13 @@ export function ChatPanel({ aiMode }: { aiMode: "claude" | "nexus" }) {
             }}
             rows={2}
             placeholder="Ask about jobs, calibrations, customers…"
-            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-violet/50 placeholder:text-muted-foreground/60"
-            style={{ minHeight: 60 }}
+            className="flex-1 border border-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-[var(--border-strong)] placeholder:text-muted-foreground/60"
+            style={{ minHeight: 60, background: "var(--input-bg)" }}
           />
           <button onClick={() => send()} disabled={loading || !input.trim()}
             className="p-2.5 rounded-lg disabled:opacity-40 transition-all"
             style={{
-              background: "linear-gradient(135deg, oklch(0.66 0.22 290), oklch(0.6 0.22 295))",
+              background: "linear-gradient(135deg, var(--violet), var(--violet-glow))",
               color: "white",
             }}>
             <Send className="size-4" />
@@ -104,14 +106,19 @@ function Bubble({ msg }: { msg: Msg }) {
   const isUser = msg.role === "user";
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-        isUser
-          ? "text-white"
-          : "bg-white/[0.04] border border-white/8 text-foreground"
-      }`} style={isUser ? { background: "linear-gradient(135deg, oklch(0.66 0.22 290), oklch(0.6 0.22 295))" } : undefined}>
+      <div
+        className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+          isUser ? "text-white" : "border border-border text-foreground"
+        }`}
+        style={
+          isUser
+            ? { background: "linear-gradient(135deg, var(--violet), var(--violet-glow))" }
+            : { background: "var(--input-bg)" }
+        }
+      >
         <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderInline(msg.content) }} />
         {msg.audit && msg.audit.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-white/10">
+          <div className="mt-2 pt-2 border-t border-border">
             <button onClick={() => setOpen(!open)}
               className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
               <ChevronRight className={`size-3 transition-transform ${open ? "rotate-90" : ""}`} />
@@ -120,7 +127,11 @@ function Bubble({ msg }: { msg: Msg }) {
             {open && (
               <div className="mt-2 space-y-2">
                 {msg.audit.map((a, i) => (
-                  <div key={i} className="rounded-md bg-black/30 border border-white/5 p-2 text-[10.5px]">
+                  <div
+                    key={i}
+                    className="rounded-md p-2 text-[10.5px] border"
+                    style={{ background: "var(--code-bg)", borderColor: "var(--code-border)" }}
+                  >
                     {a.input.sql ? (
                       <pre className="mono whitespace-pre-wrap text-muted-foreground overflow-x-auto">{a.input.sql}</pre>
                     ) : (
