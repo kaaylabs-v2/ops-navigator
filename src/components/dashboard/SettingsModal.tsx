@@ -235,7 +235,7 @@ function Field({ label, value, onChange, type = "text", placeholder, col, mono }
       <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">{label}</label>
       <input type={type} value={value} placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full bg-[var(--input-bg)] border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-white/30 ${mono ? "mono" : ""}`} />
+        className={`w-full bg-[var(--input-bg)] border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--border-strong)] ${mono ? "mono" : ""}`} />
     </div>
   );
 }
@@ -247,8 +247,8 @@ function SelectField({ label, value, onChange, options, col }: {
     <div className={col}>
       <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">{label}</label>
       <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[var(--input-bg)] border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-white/30">
-        {options.map(([v, l]) => <option key={v} value={v} style={{ background: "#1a1a2e" }}>{l}</option>)}
+        className="w-full bg-[var(--input-bg)] border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--border-strong)]">
+        {options.map(([v, l]) => <option key={v} value={v} style={{ background: "var(--surface-solid)", color: "var(--text)" }}>{l}</option>)}
       </select>
     </div>
   );
