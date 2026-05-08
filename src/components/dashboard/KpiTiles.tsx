@@ -61,5 +61,5 @@ export function KpiTiles({ data, loading }: { data: KpiData | null; loading: boo
 }
 
 function Skeleton() {
-  return <span className="inline-block h-7 w-16 rounded bg-white/5 animate-pulse" />;
+  return <span className="inline-block h-7 w-16 rounded bg-muted animate-pulse" />;
 }
