@@ -189,7 +189,7 @@ function StatCard({ card, index }: { card: InsightCard; index: number }) {
     <button
       type="button"
       aria-label={fullTitle}
-      className="group relative text-left rounded-lg border border-white/[0.08] bg-transparent pl-4 pr-4 py-3.5 transition-colors duration-200 hover:border-white/[0.18] focus:outline-none focus-visible:border-white/30 focus-visible:ring-1 focus-visible:ring-white/20 animate-fade-up h-full flex flex-col"
+      className="group relative text-left rounded-lg border border-border bg-transparent pl-4 pr-4 py-3.5 transition-colors duration-200 hover:border-[var(--border-strong)] focus:outline-none focus-visible:border-[var(--border-strong)] focus-visible:ring-1 focus-visible:ring-ring/40 animate-fade-up h-full flex flex-col"
       style={{ animationDelay: `${index * 50}ms` }}
     >
       <span
