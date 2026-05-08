@@ -87,17 +87,16 @@ export function Briefing({ data, loading }: Props) {
           <span
             className="inline-flex items-center justify-center size-6 rounded-md"
             style={{
-              background:
-                "linear-gradient(135deg, oklch(0.66 0.22 290 / 0.25), oklch(0.66 0.22 290 / 0.08))",
-              border: "1px solid oklch(0.66 0.22 290 / 0.35)",
+              background: "var(--ai-mark-bg)",
+              border: "1px solid color-mix(in oklch, var(--violet) 35%, transparent)",
             }}
             aria-hidden
           >
-            <Sparkles className="size-3.5" style={{ color: "var(--violet-glow)" }} />
+            <Sparkles className="size-3.5" style={{ color: "var(--ai-mark-fg)" }} />
           </span>
           <span
             className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--violet-glow)" }}
+            style={{ color: "var(--ai-mark-fg)" }}
             aria-hidden
           >
             AI Briefing
