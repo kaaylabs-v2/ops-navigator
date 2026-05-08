@@ -70,7 +70,7 @@ function Dashboard() {
 
           {error && (
             <div className="card-surface p-4 mb-6 flex items-start gap-3"
-              style={{ borderColor: "oklch(0.66 0.22 18 / 0.4)", background: "oklch(0.66 0.22 18 / 0.08)" }}>
+              style={{ borderColor: "color-mix(in oklch, var(--rose) 40%, transparent)", background: "color-mix(in oklch, var(--rose) 8%, transparent)" }}>
               <AlertTriangle className="size-4 mt-0.5 shrink-0" style={{ color: "var(--rose)" }} />
               <div className="text-sm">
                 <strong>Error: {error}.</strong>{" "}
