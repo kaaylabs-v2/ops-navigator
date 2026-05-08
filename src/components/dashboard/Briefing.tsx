@@ -141,8 +141,8 @@ export function Briefing({ data, loading }: Props) {
         </div>
         {loading || !data ? (
           <div className="space-y-2 max-w-[720px]">
-            <div className="h-7 w-3/4 bg-white/5 animate-pulse rounded" />
-            <div className="h-7 w-1/2 bg-white/5 animate-pulse rounded" />
+            <div className="h-7 w-3/4 bg-muted animate-pulse rounded" />
+            <div className="h-7 w-1/2 bg-muted animate-pulse rounded" />
           </div>
         ) : (
           <h2
