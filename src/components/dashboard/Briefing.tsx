@@ -87,17 +87,16 @@ export function Briefing({ data, loading }: Props) {
           <span
             className="inline-flex items-center justify-center size-6 rounded-md"
             style={{
-              background:
-                "linear-gradient(135deg, oklch(0.66 0.22 290 / 0.25), oklch(0.66 0.22 290 / 0.08))",
-              border: "1px solid oklch(0.66 0.22 290 / 0.35)",
+              background: "var(--ai-mark-bg)",
+              border: "1px solid color-mix(in oklch, var(--violet) 35%, transparent)",
             }}
             aria-hidden
           >
-            <Sparkles className="size-3.5" style={{ color: "var(--violet-glow)" }} />
+            <Sparkles className="size-3.5" style={{ color: "var(--ai-mark-fg)" }} />
           </span>
           <span
             className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--violet-glow)" }}
+            style={{ color: "var(--ai-mark-fg)" }}
             aria-hidden
           >
             AI Briefing
@@ -142,8 +141,8 @@ export function Briefing({ data, loading }: Props) {
         </div>
         {loading || !data ? (
           <div className="space-y-2 max-w-[720px]">
-            <div className="h-7 w-3/4 bg-white/5 animate-pulse rounded" />
-            <div className="h-7 w-1/2 bg-white/5 animate-pulse rounded" />
+            <div className="h-7 w-3/4 bg-muted animate-pulse rounded" />
+            <div className="h-7 w-1/2 bg-muted animate-pulse rounded" />
           </div>
         ) : (
           <h2
@@ -190,7 +189,7 @@ function StatCard({ card, index }: { card: InsightCard; index: number }) {
     <button
       type="button"
       aria-label={fullTitle}
-      className="group relative text-left rounded-lg border border-white/[0.08] bg-transparent pl-4 pr-4 py-3.5 transition-colors duration-200 hover:border-white/[0.18] focus:outline-none focus-visible:border-white/30 focus-visible:ring-1 focus-visible:ring-white/20 animate-fade-up h-full flex flex-col"
+      className="group relative text-left rounded-lg border border-border bg-transparent pl-4 pr-4 py-3.5 transition-colors duration-200 hover:border-[var(--border-strong)] focus:outline-none focus-visible:border-[var(--border-strong)] focus-visible:ring-1 focus-visible:ring-ring/40 animate-fade-up h-full flex flex-col"
       style={{ animationDelay: `${index * 50}ms` }}
     >
       <span
@@ -240,13 +239,13 @@ function CardGridSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="relative rounded-lg border border-white/[0.06] pl-4 pr-4 py-3.5 h-[112px] overflow-hidden"
+          className="relative rounded-lg border border-border pl-4 pr-4 py-3.5 h-[112px] overflow-hidden"
         >
-          <span className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-white/10" />
-          <div className="h-6 w-12 bg-white/5 animate-pulse rounded mb-2" />
-          <div className="h-2 w-20 bg-white/5 animate-pulse rounded mb-3" />
-          <div className="h-2 w-full bg-white/5 animate-pulse rounded mb-1.5" />
-          <div className="h-2 w-2/3 bg-white/5 animate-pulse rounded" />
+          <span className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-muted" />
+          <div className="h-6 w-12 bg-muted animate-pulse rounded mb-2" />
+          <div className="h-2 w-20 bg-muted animate-pulse rounded mb-3" />
+          <div className="h-2 w-full bg-muted animate-pulse rounded mb-1.5" />
+          <div className="h-2 w-2/3 bg-muted animate-pulse rounded" />
         </div>
       ))}
     </div>

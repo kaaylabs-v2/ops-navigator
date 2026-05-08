@@ -70,7 +70,7 @@ function Dashboard() {
 
           {error && (
             <div className="card-surface p-4 mb-6 flex items-start gap-3"
-              style={{ borderColor: "oklch(0.66 0.22 18 / 0.4)", background: "oklch(0.66 0.22 18 / 0.08)" }}>
+              style={{ borderColor: "color-mix(in oklch, var(--rose) 40%, transparent)", background: "color-mix(in oklch, var(--rose) 8%, transparent)" }}>
               <AlertTriangle className="size-4 mt-0.5 shrink-0" style={{ color: "var(--rose)" }} />
               <div className="text-sm">
                 <strong>Error: {error}.</strong>{" "}
@@ -86,14 +86,14 @@ function Dashboard() {
             <DataTables data={kpis} />
           </div>
 
-          <footer className="mt-8 pt-4 border-t border-white/5 flex items-center gap-2 text-[11px] text-muted-foreground">
+          <footer className="mt-8 pt-4 border-t border-border flex items-center gap-2 text-[11px] text-muted-foreground">
             <span>Generated {generated}</span>
             <span>·</span>
             <span>DB:</span>
-            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5">{meta?.dbMode ?? "—"}</span>
+            <span className="px-1.5 py-0.5 rounded border border-border" style={{ background: "var(--input-bg)" }}>{meta?.dbMode ?? "—"}</span>
             <span>·</span>
             <span>Dialect:</span>
-            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5">{meta?.dialect ?? "—"}</span>
+            <span className="px-1.5 py-0.5 rounded border border-border" style={{ background: "var(--input-bg)" }}>{meta?.dialect ?? "—"}</span>
           </footer>
         </div>
       </main>

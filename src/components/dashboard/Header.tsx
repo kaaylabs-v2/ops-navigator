@@ -1,7 +1,8 @@
 import {
   Activity, Sparkles, RefreshCw, Settings as SettingsIcon,
-  MessageSquare, MessageSquareOff, Database,
+  MessageSquare, MessageSquareOff, Database, Sun, Moon, Monitor,
 } from "lucide-react";
+import { useTheme } from "@/lib/theme";
 
 type Props = {
   dbMode: "mock" | "mssql";
@@ -22,8 +23,8 @@ export function Header({
         <div
           className="size-11 rounded-xl flex items-center justify-center shadow-lg"
           style={{
-            background: "linear-gradient(135deg, oklch(0.66 0.22 290), oklch(0.74 0.2 295))",
-            boxShadow: "0 8px 24px -8px oklch(0.66 0.22 290 / 0.6)",
+            background: "linear-gradient(135deg, var(--violet), var(--violet-glow))",
+            boxShadow: "0 8px 24px -8px var(--violet)",
           }}
         >
           <Activity className="size-5 text-white" strokeWidth={2.5} />
@@ -47,16 +48,17 @@ export function Header({
       <div className="flex items-center gap-2">
         <Chip icon={<Database className="size-3" />} label="DB" value={dbMode === "mssql" ? "SQL Server" : "Mock"} />
         <Chip icon={<Sparkles className="size-3" />} label="AI" value={aiMode === "claude" ? "Claude" : "Nexus"} />
+        <ThemeToggle />
         <button
           onClick={onToggleChat}
-          className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 rounded-lg hover:bg-white/5"
+          className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 rounded-lg hover:bg-[var(--row-hover)]"
         >
           {chatOpen ? <MessageSquareOff className="size-3.5" /> : <MessageSquare className="size-3.5" />}
           {chatOpen ? "Hide chat" : "Open chat"}
         </button>
         <button
           onClick={onRefresh}
-          className="px-3 py-2 text-xs font-medium border border-white/10 hover:border-white/25 transition-colors rounded-lg flex items-center gap-1.5"
+          className="px-3 py-2 text-xs font-medium border border-border hover:border-[var(--border-strong)] transition-colors rounded-lg flex items-center gap-1.5"
         >
           <RefreshCw className={`size-3.5 ${refreshing ? "animate-spin" : ""}`} />
           Refresh
@@ -65,9 +67,9 @@ export function Header({
           onClick={onOpenSettings}
           className="px-3 py-2 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all"
           style={{
-            background: "linear-gradient(135deg, oklch(0.66 0.22 290), oklch(0.6 0.22 295))",
+            background: "linear-gradient(135deg, var(--violet), var(--violet-glow))",
             color: "white",
-            boxShadow: "0 4px 16px -6px oklch(0.66 0.22 290 / 0.6)",
+            boxShadow: "0 4px 16px -6px var(--violet)",
           }}
         >
           <SettingsIcon className="size-3.5" />
@@ -78,9 +80,31 @@ export function Header({
   );
 }
 
+function ThemeToggle() {
+  const { preference, setPreference, theme } = useTheme();
+  const next = preference === "light" ? "dark" : preference === "dark" ? "system" : "light";
+  const Icon = preference === "system" ? Monitor : theme === "dark" ? Moon : Sun;
+  const label =
+    preference === "system" ? `System (${theme})` : preference === "dark" ? "Dark" : "Light";
+  return (
+    <button
+      onClick={() => setPreference(next)}
+      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border hover:border-[var(--border-strong)] transition-colors text-xs"
+      aria-label={`Theme: ${label}. Click to switch.`}
+      title={label}
+    >
+      <Icon className="size-3.5" />
+      <span className="capitalize hidden sm:inline">{preference}</span>
+    </button>
+  );
+}
+
 function Chip({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs border border-white/10 bg-white/5">
+    <div
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs border border-border"
+      style={{ background: "var(--input-bg)" }}
+    >
       <span className="text-muted-foreground">{icon}</span>
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium">{value}</span>
