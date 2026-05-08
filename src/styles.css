@@ -303,6 +303,25 @@
   }
   .pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
 
+  @keyframes slide-in-y {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-in-y { animation: slide-in-y 0.2s ease-out both; }
+
+  @keyframes chart-highlight {
+    0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--violet) 60%, transparent); border-color: var(--violet); }
+    60% { box-shadow: 0 0 0 6px color-mix(in oklch, var(--violet) 0%, transparent); border-color: color-mix(in oklch, var(--violet) 60%, transparent); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+  .chart-highlight { animation: chart-highlight 1.5s ease-out 1; }
+
+  @keyframes gen-chip-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.78; }
+  }
+  .gen-chip-pulse { animation: gen-chip-pulse 1.6s ease-in-out infinite; }
+
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
