@@ -424,3 +424,228 @@ export async function sendChat(messages: ChatMessage[]): Promise<ChatResponse> {
     audit: [{ tool: "get_schema", input: {}, ok: true, summary: "7 tables" }],
   };
 }
+
+// ============================================================================
+// Chart generation — slash-command driven artifact creation in the chat panel.
+// Backend streams SSE; this mock simulates the same shape & cadence.
+// ============================================================================
+
+export type ChartType =
+  | "area"
+  | "bar"
+  | "bar_horizontal"
+  | "bar_stacked_horizontal"
+  | "donut";
+
+export type ChartSpec = {
+  id: string;
+  type: ChartType;
+  title: string;
+  subtitle?: string;
+  // Field names within `rows` to read — kept simple for the mock.
+  xKey?: string;
+  yKey?: string;
+  nameKey?: string;
+  valueKey?: string;
+  // For stacked: array of dataKeys
+  stackKeys?: string[];
+  // Color token: violet | sky | emerald | amber | rose
+  color?: "violet" | "sky" | "emerald" | "amber" | "rose";
+};
+
+export type ChartGenEvent =
+  | { event: "status"; data: { phase: "interpreting" | "drafting" | "running" | "validating" | "rendering"; message: string } }
+  | { event: "ready"; data: { spec: ChartSpec; rows: any[]; rationale: string } }
+  | { event: "suggestions"; data: { suggestions: string[] } }
+  | { event: "error"; data: { message: string; phase?: string; draftTitle?: string } };
+
+export type DashboardSpecResponse = { charts: { spec: ChartSpec; rows: any[] }[] };
+
+// In-memory dashboard spec — starts with the existing 6 ChartGrid charts.
+let dashboardSpec: { charts: { spec: ChartSpec; rows: any[] }[] } | null = null;
+
+function ensureSpec(): DashboardSpecResponse {
+  if (dashboardSpec) return dashboardSpec;
+  const k = buildKpis();
+  dashboardSpec = {
+    charts: [
+      { spec: { id: "rev-12mo", type: "area", title: "Revenue last 12 months", subtitle: "Monthly invoiced revenue", xKey: "month", yKey: "revenue", color: "violet" }, rows: k.charts.revenueByMonth },
+      { spec: { id: "jobs-status", type: "donut", title: "Jobs by status", subtitle: "All open & recent jobs", nameKey: "name", valueKey: "value" }, rows: k.charts.jobsByStatus },
+      { spec: { id: "top-cust", type: "bar_horizontal", title: "Top customers", subtitle: "Last 12 months · top 10", nameKey: "name", valueKey: "value", color: "violet" }, rows: k.charts.topCustomers },
+      { spec: { id: "cal-due", type: "bar", title: "Calibrations due", subtitle: "Next 6 months", xKey: "month", yKey: "due", color: "sky" }, rows: k.charts.calibrationsDueByMonth },
+      { spec: { id: "equip-type", type: "bar", title: "Equipment by type", subtitle: "Active inventory", xKey: "name", yKey: "value", color: "violet" }, rows: k.charts.equipmentByType },
+      { spec: { id: "tech-workload", type: "bar_stacked_horizontal", title: "Technician workload", subtitle: "Active vs completed", nameKey: "name", stackKeys: ["active", "completed"] }, rows: k.charts.technicianWorkload },
+    ],
+  };
+  return dashboardSpec;
+}
+
+export async function fetchDashboardSpec(): Promise<DashboardSpecResponse> {
+  await delay(180);
+  return JSON.parse(JSON.stringify(ensureSpec()));
+}
+
+export async function addChartToSpec(chart: { spec: ChartSpec; rows: any[] }): Promise<DashboardSpecResponse> {
+  await delay(220);
+  ensureSpec();
+  dashboardSpec!.charts.push(chart);
+  return JSON.parse(JSON.stringify(dashboardSpec));
+}
+
+export async function replaceChartInSpec(replaceId: string, chart: { spec: ChartSpec; rows: any[] }): Promise<DashboardSpecResponse> {
+  await delay(220);
+  ensureSpec();
+  const i = dashboardSpec!.charts.findIndex((c) => c.spec.id === replaceId);
+  if (i >= 0) dashboardSpec!.charts.splice(i, 1, chart);
+  return JSON.parse(JSON.stringify(dashboardSpec));
+}
+
+// ---- Mock chart-generation interpreter ----------------------------------
+function interpretPrompt(prompt: string): ChartGenEvent {
+  const p = prompt.toLowerCase().trim();
+  if (!p || /^(something|anything|cool|surprise)/.test(p) || p.length < 6) {
+    return {
+      event: "suggestions",
+      data: {
+        suggestions: [
+          "Revenue by month",
+          "Top 10 customers by spend",
+          "Jobs by status",
+        ],
+      },
+    };
+  }
+  if (/(mars|moon|earth|distance|weather|stock)/.test(p)) {
+    return {
+      event: "error",
+      data: {
+        message: "the SQL didn't work against the schema",
+        phase: "validating",
+        draftTitle: "Unrelated metric",
+      },
+    };
+  }
+
+  const k = buildKpis();
+  const id = `gen-${Date.now().toString(36)}`;
+
+  if (/revenue|invoice/.test(p) && /month|trend|time/.test(p)) {
+    return {
+      event: "ready",
+      data: {
+        spec: { id, type: "area", title: "Monthly revenue trend", subtitle: "Invoiced revenue, last 12 months", xKey: "month", yKey: "revenue", color: "violet" },
+        rows: k.charts.revenueByMonth,
+        rationale: "Monthly revenue from invoices issued in the last 12 months.",
+      },
+    };
+  }
+  if (/customer/.test(p) && /(top|spend|revenue)/.test(p)) {
+    return {
+      event: "ready",
+      data: {
+        spec: { id, type: "bar_horizontal", title: "Top customers by spend", subtitle: "Last 12 months", nameKey: "name", valueKey: "value", color: "violet" },
+        rows: k.charts.topCustomers,
+        rationale: "Sum of invoiced revenue per customer over the last 12 months, top 10.",
+      },
+    };
+  }
+  if (/job/.test(p) && /status/.test(p)) {
+    return {
+      event: "ready",
+      data: {
+        spec: { id, type: "donut", title: "Jobs by status", subtitle: "All open & recent jobs", nameKey: "name", valueKey: "value" },
+        rows: k.charts.jobsByStatus,
+        rationale: "Distribution of jobs across pipeline statuses.",
+      },
+    };
+  }
+  if (/equip|instrument/.test(p)) {
+    return {
+      event: "ready",
+      data: {
+        spec: { id, type: "bar", title: "Equipment by type", subtitle: "Active inventory", xKey: "name", yKey: "value", color: "violet" },
+        rows: k.charts.equipmentByType,
+        rationale: "Active equipment counts grouped by type.",
+      },
+    };
+  }
+  if (/tech|workload/.test(p)) {
+    return {
+      event: "ready",
+      data: {
+        spec: { id, type: "bar_stacked_horizontal", title: "Technician workload", subtitle: "Active vs completed", nameKey: "name", stackKeys: ["active", "completed"] },
+        rows: k.charts.technicianWorkload,
+        rationale: "Active vs completed jobs per technician over the last 30 days.",
+      },
+    };
+  }
+  if (/calibration|due/.test(p)) {
+    return {
+      event: "ready",
+      data: {
+        spec: { id, type: "bar", title: "Calibrations due by month", subtitle: "Next 6 months", xKey: "month", yKey: "due", color: "sky" },
+        rows: k.charts.calibrationsDueByMonth,
+        rationale: "Calibration due dates aggregated per upcoming month.",
+      },
+    };
+  }
+  return {
+    event: "ready",
+    data: {
+      spec: { id, type: "bar", title: "Equipment by type", subtitle: "Best guess from your prompt", xKey: "name", yKey: "value", color: "violet" },
+      rows: k.charts.equipmentByType,
+      rationale: "Closest match found in the schema for the given prompt.",
+    },
+  };
+}
+
+export async function streamGenerateChart(
+  prompt: string,
+  onEvent: (e: ChartGenEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const wait = (ms: number) =>
+    new Promise<void>((resolve, reject) => {
+      const t = setTimeout(() => resolve(), ms);
+      signal?.addEventListener("abort", () => {
+        clearTimeout(t);
+        reject(new DOMException("Aborted", "AbortError"));
+      });
+    });
+
+  const final = interpretPrompt(prompt);
+  const draftTitle =
+    final.event === "ready"
+      ? final.data.spec.title
+      : final.event === "error"
+      ? final.data.draftTitle ?? "your request"
+      : "your request";
+
+  await wait(220);
+  onEvent({ event: "status", data: { phase: "interpreting", message: "Understanding what you want…" } });
+
+  if (final.event === "suggestions") {
+    await wait(900);
+    onEvent(final);
+    return;
+  }
+
+  await wait(380);
+  onEvent({ event: "status", data: { phase: "drafting", message: `Drafting "${draftTitle}"…` } });
+  await wait(2400 + Math.random() * 2200);
+
+  onEvent({ event: "status", data: { phase: "running", message: "Running 1 SQL query against the database…" } });
+  await wait(900 + Math.random() * 700);
+
+  onEvent({ event: "status", data: { phase: "validating", message: "Validating result…" } });
+  await wait(420);
+
+  if (final.event === "error") {
+    onEvent(final);
+    return;
+  }
+  onEvent({ event: "status", data: { phase: "rendering", message: "Rendering chart…" } });
+  await wait(180);
+  onEvent(final);
+}
+

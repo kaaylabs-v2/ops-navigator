@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/dashboard/Header";
 import { Briefing } from "@/components/dashboard/Briefing";
 import { KpiTiles } from "@/components/dashboard/KpiTiles";
@@ -7,9 +9,11 @@ import { ChartGrid } from "@/components/dashboard/ChartGrid";
 import { DataTables } from "@/components/dashboard/DataTables";
 import { ChatPanel } from "@/components/dashboard/ChatPanel";
 import { SettingsModal } from "@/components/dashboard/SettingsModal";
+import { MakeRoomModal } from "@/components/dashboard/MakeRoomModal";
 import {
   fetchKpis, fetchInsights, fetchSettings,
-  type KpiData, type Insights, type Settings,
+  fetchDashboardSpec, addChartToSpec, replaceChartInSpec,
+  type KpiData, type Insights, type Settings, type ChartSpec,
 } from "@/lib/mock-api";
 import { AlertTriangle } from "lucide-react";
 
@@ -35,6 +39,10 @@ function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [chartRefreshKey, setChartRefreshKey] = useState(0);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [makeRoom, setMakeRoom] = useState<{ spec: ChartSpec; rows: any[] } | null>(null);
+  const [existingCharts, setExistingCharts] = useState<{ spec: ChartSpec; rows: any[] }[]>([]);
 
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -50,6 +58,34 @@ function Dashboard() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  function flashHighlight(id: string) {
+    setHighlightId(id);
+    setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 1700);
+  }
+
+  const handleAddChart = useCallback(async (spec: ChartSpec, rows: any[]) => {
+    const current = await fetchDashboardSpec();
+    if (current.charts.length < 6) {
+      await addChartToSpec({ spec, rows });
+      setChartRefreshKey((k) => k + 1);
+      flashHighlight(spec.id);
+      toast.success("Added to dashboard.");
+      return { added: true };
+    }
+    setExistingCharts(current.charts);
+    setMakeRoom({ spec, rows });
+    return { added: false };
+  }, []);
+
+  const handleConfirmReplace = useCallback(async (replaceId: string) => {
+    if (!makeRoom) return;
+    await replaceChartInSpec(replaceId, makeRoom);
+    setChartRefreshKey((k) => k + 1);
+    flashHighlight(makeRoom.spec.id);
+    toast.success("Chart replaced.");
+    setMakeRoom(null);
+  }, [makeRoom]);
 
   const meta = kpis?.meta;
   const generated = meta ? new Date(meta.generatedAt).toLocaleTimeString("en", { hour12: false }) : "—";
@@ -82,7 +118,7 @@ function Dashboard() {
           <div className="space-y-6">
             <Briefing data={insights} loading={insLoading} />
             <KpiTiles data={kpis} loading={loading} />
-            <ChartGrid data={kpis} />
+            <ChartGrid data={kpis} refreshKey={chartRefreshKey} highlightChartId={highlightId} />
             <DataTables data={kpis} />
           </div>
 
@@ -104,7 +140,7 @@ function Dashboard() {
         }`}
       >
         <div className="h-screen p-4 pl-0">
-          <ChatPanel aiMode={settings?.aiMode ?? "claude"} />
+          <ChatPanel aiMode={settings?.aiMode ?? "claude"} onAddChart={handleAddChart} />
         </div>
       </aside>
 
@@ -113,6 +149,16 @@ function Dashboard() {
         onClose={() => setSettingsOpen(false)}
         onSaved={(s) => { setSettings(s); load(true); }}
       />
+
+      <MakeRoomModal
+        open={!!makeRoom}
+        newChart={makeRoom}
+        existingCharts={existingCharts}
+        onCancel={() => setMakeRoom(null)}
+        onConfirm={handleConfirmReplace}
+      />
+
+      <Toaster />
     </div>
   );
 }
