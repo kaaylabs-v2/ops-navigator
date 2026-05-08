@@ -239,13 +239,13 @@ function CardGridSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="relative rounded-lg border border-white/[0.06] pl-4 pr-4 py-3.5 h-[112px] overflow-hidden"
+          className="relative rounded-lg border border-border pl-4 pr-4 py-3.5 h-[112px] overflow-hidden"
         >
-          <span className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-white/10" />
-          <div className="h-6 w-12 bg-white/5 animate-pulse rounded mb-2" />
-          <div className="h-2 w-20 bg-white/5 animate-pulse rounded mb-3" />
-          <div className="h-2 w-full bg-white/5 animate-pulse rounded mb-1.5" />
-          <div className="h-2 w-2/3 bg-white/5 animate-pulse rounded" />
+          <span className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-muted" />
+          <div className="h-6 w-12 bg-muted animate-pulse rounded mb-2" />
+          <div className="h-2 w-20 bg-muted animate-pulse rounded mb-3" />
+          <div className="h-2 w-full bg-muted animate-pulse rounded mb-1.5" />
+          <div className="h-2 w-2/3 bg-muted animate-pulse rounded" />
         </div>
       ))}
     </div>
